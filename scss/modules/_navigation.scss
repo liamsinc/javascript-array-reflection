@@ -17,6 +17,20 @@
 
         column-gap: em(150px);
 
-        font-size: em(20px);
+        font-size: em(25px);
     }
+}
+
+.nav__item:hover {
+    & > a {
+        color: $aqua;
+        text-decoration: underline;
+        text-underline-offset: em(3px);
+    }
+}
+
+.active-nav-styles {
+    color: $aqua;
+    text-decoration: underline;
+    text-underline-offset: em(3px);
 }
