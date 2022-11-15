@@ -35,6 +35,8 @@ if (resetDB) {
     console.log("Database found, contents inherited!");
 }
 
+console.log(database);
+
 
 // Used in applyActiveNavStyles():
 const homeURLs = ['index.html', ':5500/']; // Holds possible home URL endings
