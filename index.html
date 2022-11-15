@@ -34,11 +34,15 @@
 
         <section id="email__section">
             <div id="email__wrapper" class="container">
-                <h2>Type in your email to asso</h2>
+                <label for="email__input" class="email__label">Email</label>
+                <p class="email__error"></p>
+                <input type="text" id="email__input">
+                <button type="submit" id="email__submit">Submit</button>
             </div>
         </section>
     </div>
     <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/purify.min.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
