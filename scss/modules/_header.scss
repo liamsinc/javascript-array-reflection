@@ -1,0 +1,13 @@
+#header {
+    &__section {
+        border-bottom: em(1px) solid red;
+    }
+
+    &__wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        height: em(100px);
+    }
+}

@@ -1,0 +1,22 @@
+#nav {
+    &__section {
+        border-bottom: em(1px) solid red;
+    }
+
+    &__wrapper {
+        display: flex;
+        justify-content: center;
+
+        height: em(50px);
+    }
+
+    &__list {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        column-gap: em(150px);
+
+        font-size: em(20px);
+    }
+}

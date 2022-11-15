@@ -1,0 +1,28 @@
+
+
+// Media query mixin
+@mixin media-query ($break) {
+	@if $break == "small" {
+		@media (min-width: $brkpoint-sm)  {
+			@content;
+		}
+	}
+	@else if $break == "medium" {
+		@media (min-width: $brkpoint-md) {
+			@content;
+		}
+	}
+    @else if $break == "large" {
+		@media (min-width: $brkpoint-lg) {
+			@content;
+		}
+	}
+	@else if $break == "x-large" {
+		@media (min-width: $brkpoint-xl) {
+			@content;
+		}
+	}
+	@else {
+		@error "Error: No value could be retrieved from argument $break: '#{$break}'";
+	}
+}
