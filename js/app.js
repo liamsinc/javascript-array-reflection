@@ -1,11 +1,26 @@
 // Will store objects containing an email address and the associated image URL.
-let emailArray = [];
+
+var emailArray = [];
+
+if (sessionStorage.getItem('emailArray') === null) {
+    emailArray.push({email: '', images: []});
+    console.log(emailArray);
+} else {
+    emailArray = JSON.parse(sessionStorage.getItem('emailArray'));
+    console.log(emailArray);
+}
 
 // Constants used in applyActiveNavStyles():
 const homeURLs = ['index.html', ':5500/']; // Holds possible home URL endings
 const searchURLs = ['search.html']; // Holds possible search URL endings
 const $navLinks = ['#nav__home', '#nav__search']; // Holds the IDs of the two nav links
 const activeNavClass = 'active-nav-styles'; // The name of the class to be applied
+
+const $image = '#theImage';
+
+const url = 'https://picsum.photos/1920'
+
+
 
 /* 
 Function which applies styles to the current page navigation link.
@@ -40,11 +55,22 @@ Function which adds a new email and associated image url to emailArray.
 email: Email address to associate with image.
 image: URL of image to associate with email address.
 Wraps values in an object and pushes it to emailArray.
-*/ 
+*/
 
-function updateEmailArray(email, url) {
-    emailArray.push({email: `${email}`, image: `${url}`});
-};
+
+function updateEmailArray(array, email, url) {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i].email === '') {
+            emailArray[i].email = email;
+            emailArray[i].images.push(url);
+        } else if (array[i].email === email) {
+            emailArray[i].images.push(url);
+        } else {
+            emailArray.push({email: `${email}`, images: [`${url}`]});
+        }
+    }
+    sessionStorage.setItem('emailArray', JSON.stringify(emailArray));
+}
 
 /* 
 Function that searchs emailArray.
@@ -65,9 +91,36 @@ function searchEmailArray(array, email) {
     }
 }
 
+function fetchImage(url) {
+   return fetch(url)
+    .then(checkStatus)
+    .catch(error => console.log(error));
+}
+
+function checkStatus(response) {
+    if (response.ok) {
+        return Promise.resolve(response)
+    } else {
+        return Promise.reject(new Error(response.statusText));
+    }
+}
+
+function generateImage(image) {
+    $($image).attr('src', image);
+}
+
 
 // On page load:
 $(function () {
     applyActiveNavStyles(homeURLs, searchURLs);
 });
 
+Promise.all([
+    fetchImage(url)
+]).then(data => {
+    const randomImage = data[0].url;
+    generateImage(randomImage);
+})
+
+updateEmailArray(emailArray, 'test2@example.com', 'https://i.picsum.photos/id/641/1920/1920.jpg?hmac=07v0Mrggv_hPogT_x-YTf0zuH9oK2N2x4OxmziaxlGA');
+console.log(emailArray);

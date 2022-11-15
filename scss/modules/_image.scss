@@ -1,0 +1,19 @@
+#image {
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        row-gap: 30px;
+
+        padding: em(20px);
+        margin-top: em(20px);
+        border-top: em(1px) solid red;
+        border-bottom: em(1px) solid red;
+    }
+}
+
+#theImage {
+    border: 1px solid red;
+    width: 500px;
+}
