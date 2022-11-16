@@ -2,8 +2,10 @@
 VARIABLES/CONSTANTS
 */
 
-// Declare an empty array.
+// Declare an empty array that will act as our datbase.
 var database = [];
+
+
 
 /*
 Constant used to force reset the database (dev tool):
@@ -63,13 +65,18 @@ const emailRegex = /^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}
 const emailNullError = "Please enter your email!";
 const emailFormatError = "Please enter a valid email!";
 
-// Other jQuery constant:
+// Other jQuery constants:
 const $homeSubmitBtn = '#email__submit';
 const $imageResetBtn = '#image__reset';
 const $searchBtn = '#search__submit';
 const $emailField = '#email__input';
 const $searchField = '#search__input';
 const $inputMsg = '.input__msg';
+const $resultsBox = '#results__box';
+const $resultsTitle = '#results__title';
+const $resultItem = '#results__item';
+const $resultEmail = '#results__email';
+const $resultImageBox = '.results__img__box';
 
 // CSS Class reference:
 const $successClass = 'success-class';
@@ -79,6 +86,8 @@ const purifyConfig = {
     ALLOWED_TAGS: ['', ''],
     KEEP_CONTENT: true
 };
+
+let isHome = false;
 
 /* 
 Function applyActiveNavStyles(hURLs, sURLs);
@@ -94,12 +103,14 @@ function applyActiveNavStyles(hURLs, sURLs) {
         if (currentURL.endsWith(hURLs[i])) {
             $($navLinks[0]).addClass(activeNavClass);
             $($navLinks[1]).removeClass(activeNavClass);
+            isHome = true;
             break;
         } else {
             for (let j = 0; j < sURLs.length; j++) {
                 if (currentURL.endsWith(sURLs[j])) {
                     $($navLinks[1]).addClass(activeNavClass);
                     $($navLinks[0]).removeClass(activeNavClass);
+                    isHome = false;
                 } else {
                     console.log(`Error: Cannot determine active link for ${currentURL}`);
                 }
@@ -259,10 +270,25 @@ function searchDatabase(email) {
 
 // }
 
-// function retrieveDatabase() {
-//     for (let i = 0; i < database.length; i++) {
-//     }
-// }
+function generateResult(email, images) {
+    let html = 
+    `<div class="results__item">
+        <h3 id="results__email">${email}</h3>
+        <div class="results__img__box">
+        </div>
+    </div>`;
+
+    $($resultsBox).append(html);
+
+
+    for (let i = 0; i < images.length; i++) {
+        let img = `<img class="results__image" src="${images[i]}" alt="Image #${i + 1} from ${email}">`;
+        $($resultImageBox).append(img);
+    }
+
+}
+
+
 
 function onSearch(event) {
     event.preventDefault();
@@ -277,9 +303,9 @@ function onSearch(event) {
     if (emailValid) {
         const emailExists = searchDatabase(email);
         if (emailExists) {
-
+            retrieveDatabase(true, email);
         } else {
-
+            retrieveDatabase();
         }
     }
 };
@@ -290,11 +316,17 @@ FUNCTIONS END
 GENERAL CODE START
 */
 
-// Fetch then generate the image
-loadImage();
-
 // Apply the active nav styles:
 applyActiveNavStyles(homeURLs, searchURLs);
+
+
+if (isHome) {
+    loadImage(); 
+} else {
+    retrieveDatabase();
+}
+
+
 
 
 // Handler for the submit button
