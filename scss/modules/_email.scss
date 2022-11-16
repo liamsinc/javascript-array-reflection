@@ -1,0 +1,61 @@
+#email {
+    &__section {
+
+    }
+
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        padding: em(20px);
+    }
+
+    &__title {
+        margin-bottom: em(20px);
+    }
+
+    &__input {
+        
+        outline: none;
+        border: 1px solid $aqua;
+        border-radius: em(5px);
+        padding: em(5px);
+
+        background-color: darken($aqua, 40%);
+        text-align: center;
+        &:focus {
+            background-color: darken($aqua, 10%);
+            box-shadow: 0 0 8px $aqua;
+        }
+    }
+
+    &__submit {
+        @include button-styles($successGreen);
+        height: em(35px);
+    }
+}
+
+.email {
+    &__label {
+        font-size: em(25px);
+        margin-bottom: em(5px);
+
+        @include media-query (small) {
+            text-align: left;
+        }
+    }
+
+    &__error {
+        color: $errorRed;
+        margin-top: em(7px);
+        height: em(45px);
+
+        @include media-query (x-small) {
+            height: em(25px);
+        }
+    }
+}
+
+.email-success {
+    color: $successGreen;
+}

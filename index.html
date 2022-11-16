@@ -30,13 +30,14 @@
                 <div id="image__text-wrapper">
                     <h2 id="image__title">Here's your random image!</h2>
                     <p class="image__text">
-                        To associate the current image with an email address,
-                        type your email into the field below the image and click submit.
+                        Link one or more images to an email address using
+                        the form below.
                     </p>
                     <p class="image__text">
-                        To search for images associated with an email address,
-                        head over to the <a href="search.html" title="Search images by email!">search</a> page.
+                        Find images associated with an email address on
+                        the <a href="search.html" title="Search images by email!">search</a> page.
                     </p>
+                    <button type="button" id="image__reset">Refresh Image</button>
                 </div>
                 <div id="image__container">
                     <h2 id="image__loading">Loading random image...</h2>
@@ -45,10 +46,11 @@
         </section>
 
         <section id="email__section">
-            <div id="email__wrapper" class="container">
-                <label for="email__input" class="email__label">Email</label>
+            <div id="email__wrapper">
+                <h2 id="email__title">Link the image to your email below!</h2>
+                <label for="email__input" class="email__label">Email:</label>
+                <input type="text" id="email__input" placeholder="Enter your email here...">
                 <p class="email__error"></p>
-                <input type="text" id="email__input">
                 <button type="submit" id="email__submit">Submit</button>
             </div>
         </section>

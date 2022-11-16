@@ -2,7 +2,12 @@
 
 // Media query mixin
 @mixin media-query ($break) {
-	@if $break == "small" {
+	@if $break == "x-small" {
+		@media (min-width: $brkpoint-xs) {
+			@content;
+		}
+	}
+	@else if $break == "small" {
 		@media (min-width: $brkpoint-sm)  {
 			@content;
 		}
@@ -24,5 +29,20 @@
 	}
 	@else {
 		@error "Error: No value could be retrieved from argument $break: '#{$break}'";
+	}
+}
+
+@mixin button-styles ($color) {
+	outline: none;
+	border: 1px solid $color;
+	border-radius: em(5px);
+	background-color: darken($color, 40%);
+
+	padding-right: em(10px);
+    padding-left: em(10px);
+
+	&:hover {
+		background-color: $color;
+		box-shadow: 0 0 8px $color;
 	}
 }

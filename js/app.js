@@ -50,6 +50,9 @@ const $image = '#theImage';
 // The container for the image:
 const $imageBox = '#image__container';
 
+// The loading image placeholder:
+const loadingMsg = '<h2 id="image__loading">Loading random image...</h2>';
+
 // The URL I want to fetch from:
 const url = 'https://picsum.photos/1920';
 
@@ -58,12 +61,16 @@ const emailRegex = /^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}
 
 // Container variables for error messages:
 const emailNullError = "Please enter your email!";
-const emailFormatError = "Please enter a valid email! (Invalid Format)";
+const emailFormatError = "Please enter a valid email!";
 
 // Other jQuery constant:
 const $homeSubmitBtn = '#email__submit';
+const $imageResetBtn = '#image__reset';
 const $emailField = '#email__input';
 const $emailError = '.email__error';
+
+// CSS Class reference:
+const $successClass = 'email-success';
 
 // Settings for DOMPurify:
 const purifyConfig = {
@@ -108,6 +115,7 @@ on the validity of the email passed to it.
 */
 
 function checkEmail(email) {
+    $($emailError).removeClass($successClass);
     if (email === '') {
         $($emailError).text(emailNullError);
         return false;
@@ -171,6 +179,12 @@ function checkStatus(response) {
     }
 }
 
+// Function reloadPage(). Self explanatory.
+
+function reloadPage() {
+    location.reload();
+}
+
 /* 
 Function generateImage(image);
 Invoked on page load.
@@ -208,8 +222,25 @@ function onSubmit(event) {
     if (emailValid) {
         let url = $($image).attr('src');
         updateDatabase(email, url);
-        location.reload();
+        $($emailError)
+            .addClass($successClass)
+            .text("Successfully linked image to email!"
+        );
+
+        setTimeout(reloadPage, 2000);
     }
+}
+
+function loadImage() {
+
+    $($imageBox).html(loadingMsg);
+
+    Promise.all([
+        fetchImage(url)
+    ]).then(data => {
+        let randomImage = data[0].url;
+        generateImage(randomImage);
+    });
 }
 
 /*
@@ -219,12 +250,7 @@ GENERAL CODE START
 */
 
 // Fetch then generate the image
-Promise.all([
-    fetchImage(url)
-]).then(data => {
-    let randomImage = data[0].url;
-    generateImage(randomImage);
-})
+loadImage();
 
 // Apply the active nav styles:
 applyActiveNavStyles(homeURLs, searchURLs);
@@ -232,5 +258,7 @@ applyActiveNavStyles(homeURLs, searchURLs);
 
 // Handler for the submit button
 $($homeSubmitBtn).on('click', (event) => onSubmit(event));
+
+$($imageResetBtn).on('click', loadImage);
 
 

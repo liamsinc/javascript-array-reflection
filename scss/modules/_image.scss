@@ -8,9 +8,8 @@
         column-gap: em(30px);
         row-gap: em(30px);
         padding: em(20px);
-        margin-top: em(20px);
+        
 
-        border-top: em(1px) solid red;
         border-bottom: em(1px) solid red;
 
         text-align: center;
@@ -52,7 +51,7 @@
     }
 
     &__title {
-        margin-bottom: em(20px);
+        color: $aqua;
     }
 
     &__text-wrapper {
@@ -66,11 +65,25 @@
             font-size: em(25px);
         }
     }
+
+    &__reset {
+        @include button-styles($successGreen);
+        margin-top: em(20px);
+        height: em(35px);
+
+        @include media-query (medium) {
+            height: em(60px);
+        }
+
+        @include media-query (large) {
+            height: em(35px);
+        }
+    }
 }
 
 .image__text {
 
-    margin-bottom: em(20px);
+    margin-top: em(20px);
 
     & > a {
         color: $aqua;
