@@ -54,7 +54,7 @@ const $imageBox = '#image__container';
 const loadingMsg = '<h2 id="image__loading">Loading random image...</h2>';
 
 // The URL I want to fetch from:
-const url = 'https://picsum.photos/1920';
+const url = 'https://picsum.photos/2000';
 
 // The regex pattern to validate the email:
 const emailRegex = /^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$/;
