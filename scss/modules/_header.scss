@@ -7,7 +7,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        text-align: center;
 
-        height: em(100px);
+        min-height: em(120px);
+    }
+
+    &__title {
+        text-shadow: 0 0 15px $aqua;
     }
 }

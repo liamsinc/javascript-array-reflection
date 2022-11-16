@@ -12,23 +12,35 @@
     <div id="page__wrapper">
         <header id="header__section">
             <div id="header__wrapper" class="container">
-                <h1>Javascript Array Reflection</h1>
+                <h1 id="header__title">Javascript Array Reflection</h1>
             </div>
         </header>
 
         <nav id="nav__section">
             <div id="nav__wrapper">
                 <ul id="nav__list">
-                    <li class="nav__item"><a id="nav__home" href="index.html">Home</a></li>
-                    <li class="nav__item"><a id="nav__search" href="search.html">Search</a></li>
+                    <li class="nav__item"><a id="nav__home" href="index.html" title="Generate a random image!">Home</a></li>
+                    <li class="nav__item"><a id="nav__search" href="search.html" title="Search images by email!">Search</a></li>
                 </ul>
             </div>
         </nav>
 
         <section id="image__section">
-            <div id="image__wrapper" class="container">
-                <h2>Here's your random image!</h2>
-                <img id="theImage" src="" alt="A random image">
+            <div id="image__wrapper">
+                <div id="image__text-wrapper">
+                    <h2 id="image__title">Here's your random image!</h2>
+                    <p class="image__text">
+                        To associate the current image with an email address,
+                        type your email into the field below the image and click submit.
+                    </p>
+                    <p class="image__text">
+                        To search for images associated with an email address,
+                        head over to the <a href="search.html" title="Search images by email!">search</a> page.
+                    </p>
+                </div>
+                <div id="image__container">
+                    <h2 id="image__loading">Loading random image...</h2>
+                </div>
             </div>
         </section>
 

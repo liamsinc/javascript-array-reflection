@@ -4,16 +4,97 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        row-gap: 30px;
 
+        column-gap: em(30px);
+        row-gap: em(30px);
         padding: em(20px);
         margin-top: em(20px);
+
         border-top: em(1px) solid red;
         border-bottom: em(1px) solid red;
+
+        text-align: center;
+
+        @include media-query (medium) {
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            align-items: center;
+        }
+    }
+
+    &__container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: em(5px);
+        min-width: em(200px);
+        min-height: em(200px);
+
+        @include media-query (small) {
+            min-width: em(400px);
+            min-height: em(400px);
+        }
+
+        @include media-query (medium) {
+            min-width: em(550px);
+            min-height: em(550px);
+        }
+
+        @include media-query (large) {
+            min-width: em(700px);
+            min-height: em(700px);
+        }
+    }
+
+    &__loading {
+        text-shadow: 0 0 15px $aqua;
+    }
+
+    &__title {
+        margin-bottom: em(20px);
+    }
+
+    &__text-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: em(20px);
+        
+        @include media-query(x-large) {
+            font-size: em(25px);
+        }
+    }
+}
+
+.image__text {
+
+    margin-bottom: em(20px);
+
+    & > a {
+        color: $aqua;
+        &:hover {
+            text-decoration: underline;
+            text-underline-offset: em(3px);
+        }
     }
 }
 
 #theImage {
-    border: 1px solid red;
-    width: 500px;
+    width: em(200px);
+    border-radius: em(5px);
+    border: 1px solid aqua;
+
+    @include media-query(small) {
+        width: em(400px);
+    }
+
+    @include media-query (medium) {
+        width: em(550px);
+    }
+
+    @include media-query (large) {
+        width: em(700px);
+    }
 }

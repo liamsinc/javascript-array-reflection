@@ -47,6 +47,9 @@ const activeNavClass = 'active-nav-styles'; // The name of the class to be appli
 // The ID of the random image:
 const $image = '#theImage';
 
+// The container for the image:
+const $imageBox = '#image__container';
+
 // The URL I want to fetch from:
 const url = 'https://picsum.photos/1920';
 
@@ -176,7 +179,8 @@ Sets the source attribute of the image elemtent.
 */
 
 function generateImage(image) {
-    $($image).attr('src', image);
+    let imageElement = `<img id='theImage' src='${image}' alt='A random image'>`;
+    $($imageBox).html(imageElement);
 }
 
 /* 
