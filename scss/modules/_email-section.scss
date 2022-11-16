@@ -7,6 +7,7 @@
     }
 
     &__title {
+        color: $aqua;
         margin-bottom: em(20px);
     }
 
@@ -33,9 +34,7 @@
         @include button-styles($successGreen);
         height: em(35px);
     }
-}
 
-.email {
     &__label {
         font-size: em(25px);
         margin-bottom: em(5px);
@@ -44,18 +43,12 @@
             text-align: left;
         }
     }
-
-    &__error {
-        color: $errorRed;
-        margin-top: em(7px);
-        height: em(45px);
-
-        @include media-query (x-small) {
-            height: em(25px);
-        }
-    }
 }
 
-.email-success {
+.input__msg {
+    @include input-msg-styles();
+}
+
+.success-class {
     color: $successGreen;
 }

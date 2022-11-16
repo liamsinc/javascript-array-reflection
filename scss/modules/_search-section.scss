@@ -1,0 +1,54 @@
+#search {
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        padding: em(20px);
+    }
+
+    &__title {
+        color: $aqua;
+        margin-bottom: em(20px);
+    }
+
+    &__input {
+        outline: none;
+        border: 1px solid $aqua;
+        border-radius: em(5px);
+        padding: em(5px);
+
+        background-color: darken($aqua, 40%);
+        text-align: center;
+
+        &:focus {
+            background-color: darken($aqua, 10%);
+            box-shadow: 0 0 8px $aqua;
+        }
+
+        @include media-query (small) {
+            text-align: left;
+        }
+    }
+
+    &__submit {
+        @include button-styles($successGreen);
+        height: em(35px);
+    }
+
+    &__label {
+        font-size: em(25px);
+        margin-bottom: em(5px);
+
+        @include media-query (small) {
+            text-align: left;
+        }
+    }
+}
+
+.input__msg {
+    @include input-msg-styles();
+}
+
+.success-class {
+    color: $successGreen;
+}

@@ -66,11 +66,13 @@ const emailFormatError = "Please enter a valid email!";
 // Other jQuery constant:
 const $homeSubmitBtn = '#email__submit';
 const $imageResetBtn = '#image__reset';
+const $searchBtn = '#search__submit';
 const $emailField = '#email__input';
-const $emailError = '.email__error';
+const $searchField = '#search__input';
+const $inputMsg = '.input__msg';
 
 // CSS Class reference:
-const $successClass = 'email-success';
+const $successClass = 'success-class';
 
 // Settings for DOMPurify:
 const purifyConfig = {
@@ -115,12 +117,12 @@ on the validity of the email passed to it.
 */
 
 function checkEmail(email) {
-    $($emailError).removeClass($successClass);
+    $($inputMsg).removeClass($successClass);
     if (email === '') {
-        $($emailError).text(emailNullError);
+        $($inputMsg).text(emailNullError);
         return false;
     } else if (!email.match(emailRegex)) {
-        $($emailError).text(emailFormatError)
+        $($inputMsg).text(emailFormatError)
         return false;
     } else {
         return true;
@@ -150,7 +152,7 @@ function updateDatabase(email, url) {
         database.push({email: email, images: [url]});
     }
     sessionStorage.setItem('database', JSON.stringify(database));
-}
+};
 
 /* 
 Function fetchImage(url);
@@ -163,7 +165,7 @@ function fetchImage(url) {
    return fetch(url)
     .then(checkStatus)
     .catch(error => console.log(error));
-}
+};
 
 /* 
 Function checkStatus();
@@ -177,13 +179,13 @@ function checkStatus(response) {
     } else {
         return Promise.reject(new Error(response.statusText));
     }
-}
+};
 
 // Function reloadPage(). Self explanatory.
 
 function reloadPage() {
     location.reload();
-}
+};
 
 /* 
 Function generateImage(image);
@@ -195,7 +197,7 @@ Sets the source attribute of the image elemtent.
 function generateImage(image) {
     let imageElement = `<img id='theImage' src='${image}' alt='A random image'>`;
     $($imageBox).html(imageElement);
-}
+};
 
 /* 
 Function onSubmit(event);
@@ -222,14 +224,14 @@ function onSubmit(event) {
     if (emailValid) {
         let url = $($image).attr('src');
         updateDatabase(email, url);
-        $($emailError)
+        $($inputMsg)
             .addClass($successClass)
             .text("Successfully linked image to email!"
         );
 
         setTimeout(reloadPage, 2000);
     }
-}
+};
 
 function loadImage() {
 
@@ -241,7 +243,46 @@ function loadImage() {
         let randomImage = data[0].url;
         generateImage(randomImage);
     });
+};
+
+function searchDatabase(email) {
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].email === email) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
+
+// function retrieveResults(email) {
+
+// }
+
+// function retrieveDatabase() {
+//     for (let i = 0; i < database.length; i++) {
+//     }
+// }
+
+function onSearch(event) {
+    event.preventDefault();
+
+    const email = DOMPurify.sanitize (
+        $($searchField).val().trim(), 
+        purifyConfig
+    );
+
+    const emailValid = checkEmail(email);
+
+    if (emailValid) {
+        const emailExists = searchDatabase(email);
+        if (emailExists) {
+
+        } else {
+
+        }
+    }
+};
 
 /*
 FUNCTIONS END
@@ -260,5 +301,7 @@ applyActiveNavStyles(homeURLs, searchURLs);
 $($homeSubmitBtn).on('click', (event) => onSubmit(event));
 
 $($imageResetBtn).on('click', loadImage);
+
+$($searchBtn).on('click', (event) => onSearch(event));
 
 

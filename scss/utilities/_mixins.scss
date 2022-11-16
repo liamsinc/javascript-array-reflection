@@ -46,3 +46,13 @@
 		box-shadow: 0 0 8px $color;
 	}
 }
+
+@mixin input-msg-styles () {
+	color: $errorRed;
+    margin-top: em(7px);
+    height: em(45px);
+
+    @include media-query (x-small) {
+        height: em(25px);
+    }
+}
