@@ -56,3 +56,42 @@
         height: em(25px);
     }
 }
+
+@mixin input-wrapper-styles () {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	padding: em(20px);
+}
+
+@mixin input-title-styles ($color: $aqua) {
+	color: $color;
+	margin-bottom: em(20px);
+}
+
+@mixin input-field-styles ($color: $aqua) {
+	outline: none;
+	border: em(1px) solid $color;
+	border-radius: em(5px);
+	padding: em(5px);
+	background-color: darken($color, 40%);
+	text-align: center;
+
+	&:focus {
+		background-color: darken($color, 10%);
+		box-shadow: 0 0 8px $color;
+	}
+
+	@include media-query (small) {
+		text-align: left;
+	}
+}
+
+@mixin input-label-styles () {
+	font-size: em(25px);
+	margin-bottom: em(5px);
+
+	@include media-query (small) {
+		text-align: left;
+	}
+}
