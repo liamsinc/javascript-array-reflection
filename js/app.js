@@ -264,13 +264,10 @@ function generateImage(image) {
     $($imageBox).html(imageElement);
 };
 
-
-
-
+// Description needed:
 
 function loadImage() {
     $($imageBox).html(loadingMsg);
-
     Promise.all([
         fetchImage(url)
     ]).then(data => {
@@ -279,9 +276,10 @@ function loadImage() {
     });
 };
 
+// Description needed:
+
 function checkEmailExists(email) {
     let emailExists;
-
     for (let i = 0; i < database.length; i++) {
         if (database[i].email === email) {
             emailExists = true;
@@ -290,11 +288,10 @@ function checkEmailExists(email) {
             emailExists = false;
         }
     }
-
     return emailExists;
-}
+};
 
-
+// Description needed:
 
 function generateResult(email, images) {
     const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
@@ -305,7 +302,9 @@ function generateResult(email, images) {
         const img = `${resHTML4}${images[i]}${resHTML5}${i+1}${resHTML6}${email}${resHTML7}`;
         $(resultToTarget).append(img);
     }
-}
+};
+
+// Description needed:
 
 function setResultTitle(isAll, email = null,) {
     if (isAll) {
@@ -313,11 +312,19 @@ function setResultTitle(isAll, email = null,) {
     } else {
         $($resultsTitle).text(`${resultsPrefix} ${email}`);
     }
+};
+
+// Description needed:
+
+function onRetrieve() {
+    $($resultsBox).empty();
+    resultCount = 0; 
 }
 
+// Description needed:
+
 function retrieveSingle(email) {
-    $($resultsBox).empty();
-    resultCount = 0;
+    onRetrieve();
     for (let i = 0; i < database.length; i++) {
         if (database[i].email === email) {
             let retrievedEmail = database[i].email;
@@ -328,11 +335,12 @@ function retrieveSingle(email) {
             break;
         }
     }
-}
+};
+
+// Description needed:
 
 function retrieveAll() {
-    $($resultsBox).empty();
-    resultCount = 0;
+    onRetrieve();
     for (let i = 0; i < database.length; i++) {
         let retrievedEmail = database[i].email;
         let retrievedImages = database[i].images;
@@ -340,14 +348,18 @@ function retrieveAll() {
         generateResult(retrievedEmail, retrievedImages);
     }
     setResultTitle(true);
-}
+};
+
+// Description needed:
 
 function grabPurifyInput($targetInput) {
     return value = DOMPurify.sanitize (
         $($targetInput).val().trim(), 
         purifyConfig
     );
-}
+};
+
+// Description needed:
 
 function search(email, emailValid) {
     if (emailValid) {
@@ -362,7 +374,9 @@ function search(email, emailValid) {
     } else {
         retrieveAll();
     }
-}
+};
+
+// Description needed:
 
 function submit(email, emailValid) {
     if (emailValid) {
@@ -375,7 +389,9 @@ function submit(email, emailValid) {
         );
         setTimeout(reloadPage, 2000);
     }
-}
+};
+
+// Description needed:
 
 function onSubmit(page, targetElement) {
     const input = grabPurifyInput(targetElement);
@@ -387,11 +403,9 @@ function onSubmit(page, targetElement) {
     }
 };
 
-/*
-FUNCTIONS END
-----------------------------------------------------------------
-GENERAL CODE START
-*/
+//------------------------------------------------------------------------------------------------
+// GENERAL CODE
+//------------------------------------------------------------------------------------------------
 
 // Hide the submit button for 1.5 seconds while image loads:
 tempHideSubmit();
