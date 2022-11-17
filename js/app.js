@@ -68,9 +68,26 @@ const loadingMsg = '<h2 id="image__loading">Loading random image...</h2>';
 // Constants holding messages displayed to the user:
 const emailNullMsg = "Please enter your email!";
 const emailFormatMsg = "Please enter a valid email!";
+const submitSuccessMsg = "Your request was submitted successfully!";
 const emailNotFoundMsg = "Match not found!";
 const emailFoundMsg = "Match found!";
-const showingAllMsg = "Showing results for: All";
+const resultsPrefix = "Showing results for: ";
+
+// Constants holding pieces of HTML markup (search page):
+const resHTML1 = `<div class="results__item"><h3 class="results__email">`;
+const resHTML2 = `</h3><div class="results__img__box rib`;
+const resHTML3 = `"></div></div>`;
+const resHTML4 = `<img class="results__image" src="`;
+const resHTML5 = `" alt="Image #`;
+const resHTML6 = ` from `;
+const resHTML7 = `">`;
+
+// Constants holding pieces of HTML markup (home page):
+const imgHTML1 = `<img id="image__img" src="`;
+const imgHTML2 = `" alt="A random image">`;
+
+// Custom console error message:
+const consoleErr = "Error: Cannot determine active link for ";
 
 // Settings for DOMPurify:
 const purifyConfig = {
@@ -113,7 +130,7 @@ function applyActiveNavStyles(hURLs, sURLs) {
                     $($navLinks[0]).removeClass(activeNavClass);
                     isHome = false;
                 } else {
-                    console.log(`Error: Cannot determine active link for ${currentURL}`);
+                    console.log(`${consoleErr}${currentURL}`);
                 }
             }
         }
@@ -153,11 +170,14 @@ Parameters:
     1.  email = the email to add or update.
     2.  url = the url of the current random image.
 Purpose:
-    1.  Perform checks on the email. 
-    2.  Set the text of $inputMsg if email isn't valid.
-    2.  Return true if email is valid, false if not.
+    1.  Iterate through the database.
+    2.  If a match is found, push the url to the images array linked to the current email.
+    3.  If a match isn't found, set addObject to true.
+    4.  If addObject is true, push a new object containing the email and url to the database.
+    5.  Save the modified database to the session storage.
 Features:
-    1.  Removes the successMsgClass as a precautionary measure.
+    1.  If the array has just been initialized with an empty object, the function will
+        populate that object with the email and url.
 */
 
 function updateDatabase(email, url) {
@@ -178,22 +198,12 @@ function updateDatabase(email, url) {
 };
 
 /* 
-Function fetchImage(url);
-Invoked on page load.
-url = the predefined API url (global constant).
-Invokes checkStatus(), catch any errors. Returns the data object.
-*/
-
-function fetchImage(url) {
-   return fetch(url)
-    .then(checkStatus)
-    .catch(error => console.log(error));
-};
-
-/* 
-Function checkStatus();
-Invoked by function fetchImage().
-Returns either the resolved or rejected promise to fetchImage().
+Function: checkStatus(response):
+Invoked: By function fetchImage().
+Parameters:
+    1.  response = the response from the fetch attempt.
+Purpose:
+    1.  Resolve or reject the promise based on the response status.
 */
 
 function checkStatus(response) {
@@ -204,40 +214,61 @@ function checkStatus(response) {
     }
 };
 
-// Function reloadPage(). Self explanatory.
+/* 
+Function: fetchImage(url):
+Invoked: By function loadImage().
+Parameters:
+    1.  url = the url to fetch.
+Purpose:
+    1.  Invoke checkStatus(), catch any errors. Return the data.
+*/
+
+function fetchImage(url) {
+   return fetch(url)
+    .then(checkStatus)
+    .catch(error => console.log(error));
+};
+
+/* 
+Function: reloadPage():
+Invoked: By function onSubmit().
+Purpose: Reload the current page.
+*/
 
 function reloadPage() {
     location.reload();
 };
 
+/*
+Function: tempHideSubmit():
+Invoked: On page load.
+Purpose: Temporarily hide the submit button while the image loads.
+*/
+
+function tempHideSubmit() {
+    $($submitBtn).hide().delay(1500).slideDown();
+}
+
 /* 
-Function generateImage(image);
-Invoked on page load.
-image = the url of the random image url returned by the fetch call.
-Sets the source attribute of the image elemtent.
+Function: generateImage(image):
+Invoked: By function loadImage().
+Parameters:
+    1.  image = the image url to insert into the source attribute.
+Purpose: 
+    1.  Build the image tag using the url as the source attribute.
+    2.  Insert the image tag.
 */
 
 function generateImage(image) {
-    let imageElement = `<img id='image__img' src='${image}' alt='A random image'>`;
+    const imageElement = `${imgHTML1}${image}${imgHTML2}`;
     $($imageBox).html(imageElement);
 };
 
-/* 
-Function onSubmit(event);
-Invoked by $submitBtn click handler.
-event = the event passed by the click handler.
-1. Prevents the default action.
-2. Grabs and sanitizes the value of $emailField.
-3. Invokes checkEmail, passing in the sanitized email and 
-    assigning the return value to emailValid.
-4. If emailValid is true, grab the current image url and invoke updateDatabase(),
-    passing in the email and the url of the current image.
-*/
+
 
 
 
 function loadImage() {
-    $($submitBtn).slideUp();
     $($imageBox).html(loadingMsg);
 
     Promise.all([
@@ -246,7 +277,6 @@ function loadImage() {
         let randomImage = data[0].url;
         generateImage(randomImage);
     });
-    $($submitBtn).delay(1000).slideDown();
 };
 
 function checkEmailExists(email) {
@@ -264,39 +294,29 @@ function checkEmailExists(email) {
     return emailExists;
 }
 
-function emptyResults() {
-    $($resultsBox).empty();
-}
 
 
 function generateResult(email, images) {
-    const html = 
-    `<div class="results__item">
-        <h3 class="results__email">${email}</h3>
-        <div class="results__img__box rib${resultCount}">
-        </div>
-    </div>`;
-
+    const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
     $($resultsBox).append(html);
-
-    let resultToTarget = `${$resultImageBox}${resultCount}`;
+    const resultToTarget = `${$resultImageBox}${resultCount}`;
 
     for (let i = 0; i < images.length; i++) {
-        const img = `<img class="results__image" src="${images[i]}" alt="Image #${i + 1} from ${email}">`;
+        const img = `${resHTML4}${images[i]}${resHTML5}${i+1}${resHTML6}${email}${resHTML7}`;
         $(resultToTarget).append(img);
     }
 }
 
 function setResultTitle(isAll, email = null,) {
     if (isAll) {
-        $($resultsTitle).text(showingAllMsg);
+        $($resultsTitle).text(`${resultsPrefix} All`);
     } else {
-        $($resultsTitle).text(`Showing result for: ${email}`);
+        $($resultsTitle).text(`${resultsPrefix} ${email}`);
     }
 }
 
 function retrieveSingle(email) {
-    emptyResults();
+    $($resultsBox).empty();
     resultCount = 0;
     for (let i = 0; i < database.length; i++) {
         if (database[i].email === email) {
@@ -311,7 +331,7 @@ function retrieveSingle(email) {
 }
 
 function retrieveAll() {
-    emptyResults();
+    $($resultsBox).empty();
     resultCount = 0;
     for (let i = 0; i < database.length; i++) {
         let retrievedEmail = database[i].email;
@@ -329,29 +349,7 @@ function grabPurifyInput($targetInput) {
     );
 }
 
-function onSubmit(event) {
-    event.preventDefault();
-    const email = grabPurifyInput($emailField);
-    const emailValid = checkEmailValidity(email);
-
-    if (emailValid) {
-        $($submitBtn).slideUp();
-        const url = $($image).attr('src');
-        updateDatabase(email, url);
-        $($inputMsg)
-            .addClass(successMsgClass)
-            .text("Successfully linked image to email!"
-        );
-        setTimeout(reloadPage, 2000);
-    }
-};
-
-
-function onSearch(event) {
-    event.preventDefault();
-    const email = grabPurifyInput($searchField);
-    const emailValid = checkEmailValidity(email);
-
+function search(email, emailValid) {
     if (emailValid) {
         const emailExists = checkEmailExists(email);
         if (emailExists) {
@@ -364,6 +362,29 @@ function onSearch(event) {
     } else {
         retrieveAll();
     }
+}
+
+function submit(email, emailValid) {
+    if (emailValid) {
+        $($submitBtn).slideUp();
+        const url = $($image).attr('src');
+        updateDatabase(email, url);
+        $($inputMsg)
+            .addClass(successMsgClass)
+            .text(submitSuccessMsg
+        );
+        setTimeout(reloadPage, 2000);
+    }
+}
+
+function onSubmit(page, targetElement) {
+    const input = grabPurifyInput(targetElement);
+    const emailValid = checkEmailValidity(input);
+    if (page === 'home') {
+        submit(input, emailValid);
+    } else if (page === 'search') {
+        search(input, emailValid);
+    }
 };
 
 /*
@@ -372,27 +393,35 @@ FUNCTIONS END
 GENERAL CODE START
 */
 
-// Hide the submit button by default:
-$($submitBtn).hide();
+// Hide the submit button for 1.5 seconds while image loads:
+tempHideSubmit();
 
-// Apply the active nav styles:
+// Apply the active nav styles and set isHome:
 applyActiveNavStyles(homeURLs, searchURLs);
 
-
+// If we are on the homepage, invoke loadImage().
+// Else we are on the search page, so invoke retrieveAll().
 if (isHome) {
     loadImage(); 
 } else {
     retrieveAll();
 }
 
+// Handler for the submit button:
+$($submitBtn).on('click', (event) => {
+    event.preventDefault();
+    onSubmit('home', $emailField);
+});
 
+// Handler for the search button:
+$($searchBtn).on('click', (event) => {
+    event.preventDefault()
+    onSubmit('search', $searchField);
+});
 
-
-// Handler for the submit button
-$($submitBtn).on('click', (event) => onSubmit(event));
-
+// Handler for the reset button:
 $($resetBtn).on('click', loadImage);
 
-$($searchBtn).on('click', (event) => onSearch(event));
+
 
 
