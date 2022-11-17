@@ -3,7 +3,6 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
         padding: em(20px);
     }
 
@@ -17,12 +16,30 @@
 
 .results {
     &__item {
+        @include wrapper-styles();
         border: 1px solid red;
 
     }
 
+    &__email {
+        @include title-styles();
+    }
+
+    &__img__box {
+        border: 1px solid blue;
+    }
+
     &__image {
-        width: em(500px);
-        border: 1px solid $aqua;
+        width: em(200px);
+        border-radius: em(5px);
+        border: 1px solid aqua;
+
+        @include media-query(small) {
+            width: em(400px);
+        }
+
+        @include media-query (medium) {
+            width: em(550px);
+        }
     }
 }

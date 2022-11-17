@@ -79,6 +79,24 @@
             height: em(35px);
         }
     }
+
+    &__img {
+        width: em(200px);
+        border-radius: em(5px);
+        border: 1px solid aqua;
+
+        @include media-query(small) {
+            width: em(400px);
+        }
+
+        @include media-query (medium) {
+            width: em(550px);
+        }
+
+        @include media-query (large) {
+            width: em(700px);
+        }
+    }
 }
 
 .image__text {
@@ -91,23 +109,5 @@
             text-decoration: underline;
             text-underline-offset: em(3px);
         }
-    }
-}
-
-#theImage {
-    width: em(200px);
-    border-radius: em(5px);
-    border: 1px solid aqua;
-
-    @include media-query(small) {
-        width: em(400px);
-    }
-
-    @include media-query (medium) {
-        width: em(550px);
-    }
-
-    @include media-query (large) {
-        width: em(700px);
     }
 }

@@ -1,30 +1,18 @@
-/*
-VARIABLES/CONSTANTS
-*/
+//------------------------------------------------------------------------------------------------
+// CONSTANTS AND VARIABLES
+//------------------------------------------------------------------------------------------------
 
-// Declare an empty array that will act as our datbase.
-var database = [];
+// An array that will act as our database.
+let database = [];
 
+// A counter that stores the number of returned results.
 let resultCount = 0;
 
-/*
-Constant used to force reset the database (dev tool):
-Ensure this is false before deployment/submission.
-You can also reset the database by clearing the site cookies/data 
-and then reloading.
-*/
+// A boolean used to force reset the database (dev tool).
+// Ensure this is false before deployment/submission/demo:
 const resetDB = false;
 
-/*
-Conditional which sets the value of the database array:
-1. If resetDB is true, reset the database, add an empty object and save the stringified database
-    to the session storage.
-2. Else if a database doesn't exist in session storage, add an 
-    empty object to the database.
-3. Else a database must exist in session storage, so overwrite the local database
-    with the existing database.
-*/
-
+// Initialize the database:
 if (resetDB) {
     database.push({email: '', images: []});
     console.log("Database reset, added empty object!")
@@ -37,49 +25,52 @@ if (resetDB) {
     console.log("Database found, contents inherited!");
 }
 
-console.log(database);
+// Arrays that stores the possible URL endings of each page:
+const homeURLs = ['index.html', ':5500/'];
+const searchURLs = ['search.html'];
 
+// An array that stores the IDs of the navigation links:
+const $navLinks = ['#nav__home', '#nav__search'];
 
-// Used in applyActiveNavStyles():
-const homeURLs = ['index.html', ':5500/']; // Holds possible home URL endings
-const searchURLs = ['search.html']; // Holds possible search URL endings
-const $navLinks = ['#nav__home', '#nav__search']; // Holds the IDs of the two nav links
-const activeNavClass = 'active-nav-styles'; // The name of the class to be applied
+// A boolean used to determine whether to make the fetch request:
+let isHome = false;
 
-// The ID of the random image:
-const $image = '#theImage';
-
-// The container for the image:
+// jQuery ID selectors:
+const $image = '#image__img';
 const $imageBox = '#image__container';
-
-// The loading image placeholder:
-const loadingMsg = '<h2 id="image__loading">Loading random image...</h2>';
-
-// The URL I want to fetch from:
-const url = 'https://picsum.photos/2000';
-
-// The regex pattern to validate the email:
-const emailRegex = /^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$/;
-
-// Container variables for error messages:
-const emailNullError = "Please enter your email!";
-const emailFormatError = "Please enter a valid email!";
-
-// Other jQuery constants:
-const $homeSubmitBtn = '#email__submit';
-const $imageResetBtn = '#image__reset';
+const $submitBtn = '#email__submit';
+const $resetBtn = '#image__reset';
 const $searchBtn = '#search__submit';
-const $emailField = '#email__input';
-const $searchField = '#search__input';
-const $inputMsg = '.input__msg';
 const $resultsBox = '#results__box';
 const $resultsTitle = '#results__title';
+const $emailField = '#email__input';
+const $searchField = '#search__input';
+
+// jQuery class selectors:
+const $inputMsg = '.input__msg';
 const $resultItem = '.results__item';
 const $resultEmail = '.results__email';
 const $resultImageBox = '.rib';
 
-// CSS Class reference:
-const $successClass = 'success-class';
+// CSS class references:
+const successMsgClass = 'success-class';
+const activeNavClass = 'active-nav-styles';
+
+// Regex pattern to validate the email:
+const emailRegex = /^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z][0-9a-zA-Z-]+\.)+[a-zA-Z]{2,6}$/;
+
+// URL to fetch:
+const url = 'https://picsum.photos/2000';
+
+// Placeholder element shown while an image is loading:
+const loadingMsg = '<h2 id="image__loading">Loading random image...</h2>';
+
+// Constants holding messages displayed to the user:
+const emailNullMsg = "Please enter your email!";
+const emailFormatMsg = "Please enter a valid email!";
+const emailNotFoundMsg = "Match not found!";
+const emailFoundMsg = "Match found!";
+const showingAllMsg = "Showing results for: All";
 
 // Settings for DOMPurify:
 const purifyConfig = {
@@ -87,18 +78,28 @@ const purifyConfig = {
     KEEP_CONTENT: true
 };
 
-let isHome = false;
+//------------------------------------------------------------------------------------------------
+// FUNCTIONS START
+//------------------------------------------------------------------------------------------------
 
 /* 
-Function applyActiveNavStyles(hURLs, sURLs);
-Invoked on page load.
-hURLs = an array containing the possible URL endings of the home page.
-sURLs = an array containing the possible URL endings of the search page.
+Function: applyActiveNavStyles(hURLs, sURLs):
+Invoked: On page load.
+Parameters:
+    1.  hURLs = an array containing the URL endings of index.html
+    2.  sURLs = an array containing the URL endings of search.html
+Purpose:
+    1.  Determine the current page, and apply activeNavClass to the relevant nav element.
+    2.  Reassign global variable isHome dependant on current page.
+Features:
+    1.  If the current page is determined to be home, break out of the loop - no need
+        to continue inner loop.
+    2.  Helpful else clause if current page cannot be determined - print the current url
+        so I can add the ending to the relevant array.
 */
 
 function applyActiveNavStyles(hURLs, sURLs) {
-    let currentURL = window.location.href;
-
+    const currentURL = window.location.href;
     for (let i = 0; i < hURLs.length; i++) {
         if (currentURL.endsWith(hURLs[i])) {
             $($navLinks[0]).addClass(activeNavClass);
@@ -120,20 +121,25 @@ function applyActiveNavStyles(hURLs, sURLs) {
 };
 
 /* 
-Function checkEmail(email);
-Invoked by function onSubmit().
-email = the value of the sanitized input field, passed to it by function onSubmit().
-Runs a series of checks, return either true or false to function onSubmit() depending
-on the validity of the email passed to it.
+Function: checkEmailValidity(email):
+Invoked: By functions onSubmit() and onSearch().
+Parameters:
+    1.  email = the email to validate.
+Purpose:
+    1.  Perform checks on the email. 
+    2.  Set the text of $inputMsg if email isn't valid.
+    2.  Return true if email is valid, false if not.
+Features:
+    1.  Removes the successMsgClass as a precautionary measure.
 */
 
 function checkEmailValidity(email) {
-    $($inputMsg).removeClass($successClass);
+    $($inputMsg).removeClass(successMsgClass);
     if (email === '') {
-        $($inputMsg).text(emailNullError);
+        $($inputMsg).text(emailNullMsg);
         return false;
     } else if (!email.match(emailRegex)) {
-        $($inputMsg).text(emailFormatError)
+        $($inputMsg).text(emailFormatMsg)
         return false;
     } else {
         return true;
@@ -141,11 +147,17 @@ function checkEmailValidity(email) {
 };
 
 /* 
-Function updateDatabase(email, url);
-Invoked by function onSubmit().
-email = the value of the sanitized input field, passed to it by function onSubmit().
-url = the url of the current random image, passed to it by function onSubmit().
-DESCRIPTION NEEDED!
+Function: updateDatabase(email, url):
+Invoked: By function onSubmit().
+Parameters:
+    1.  email = the email to add or update.
+    2.  url = the url of the current random image.
+Purpose:
+    1.  Perform checks on the email. 
+    2.  Set the text of $inputMsg if email isn't valid.
+    2.  Return true if email is valid, false if not.
+Features:
+    1.  Removes the successMsgClass as a precautionary measure.
 */
 
 function updateDatabase(email, url) {
@@ -206,13 +218,13 @@ Sets the source attribute of the image elemtent.
 */
 
 function generateImage(image) {
-    let imageElement = `<img id='theImage' src='${image}' alt='A random image'>`;
+    let imageElement = `<img id='image__img' src='${image}' alt='A random image'>`;
     $($imageBox).html(imageElement);
 };
 
 /* 
 Function onSubmit(event);
-Invoked by $homeSubmitBtn click handler.
+Invoked by $submitBtn click handler.
 event = the event passed by the click handler.
 1. Prevents the default action.
 2. Grabs and sanitizes the value of $emailField.
@@ -225,7 +237,7 @@ event = the event passed by the click handler.
 
 
 function loadImage() {
-
+    $($submitBtn).slideUp();
     $($imageBox).html(loadingMsg);
 
     Promise.all([
@@ -234,6 +246,7 @@ function loadImage() {
         let randomImage = data[0].url;
         generateImage(randomImage);
     });
+    $($submitBtn).delay(1000).slideDown();
 };
 
 function checkEmailExists(email) {
@@ -255,9 +268,6 @@ function emptyResults() {
     $($resultsBox).empty();
 }
 
-function setResultCount() {
-
-}
 
 function generateResult(email, images) {
     const html = 
@@ -267,9 +277,8 @@ function generateResult(email, images) {
         </div>
     </div>`;
 
-    console.log(resultCount);
-
     $($resultsBox).append(html);
+
     let resultToTarget = `${$resultImageBox}${resultCount}`;
 
     for (let i = 0; i < images.length; i++) {
@@ -280,9 +289,9 @@ function generateResult(email, images) {
 
 function setResultTitle(isAll, email = null,) {
     if (isAll) {
-        $($resultsTitle).text(`Showing results for: All`);
+        $($resultsTitle).text(showingAllMsg);
     } else {
-        $($resultsTitle).text(`Showing results for: ${email}`);
+        $($resultsTitle).text(`Showing result for: ${email}`);
     }
 }
 
@@ -326,13 +335,13 @@ function onSubmit(event) {
     const emailValid = checkEmailValidity(email);
 
     if (emailValid) {
-        let url = $($image).attr('src');
+        $($submitBtn).slideUp();
+        const url = $($image).attr('src');
         updateDatabase(email, url);
         $($inputMsg)
-            .addClass($successClass)
+            .addClass(successMsgClass)
             .text("Successfully linked image to email!"
         );
-
         setTimeout(reloadPage, 2000);
     }
 };
@@ -346,8 +355,10 @@ function onSearch(event) {
     if (emailValid) {
         const emailExists = checkEmailExists(email);
         if (emailExists) {
-            retrieveSingle(email); 
+            $($inputMsg).addClass(successMsgClass).text(emailFoundMsg);
+            retrieveSingle(email);
         } else {
+            $($inputMsg).text(emailNotFoundMsg);
             retrieveAll();
         }
     } else {
@@ -360,6 +371,9 @@ FUNCTIONS END
 ----------------------------------------------------------------
 GENERAL CODE START
 */
+
+// Hide the submit button by default:
+$($submitBtn).hide();
 
 // Apply the active nav styles:
 applyActiveNavStyles(homeURLs, searchURLs);
@@ -375,9 +389,9 @@ if (isHome) {
 
 
 // Handler for the submit button
-$($homeSubmitBtn).on('click', (event) => onSubmit(event));
+$($submitBtn).on('click', (event) => onSubmit(event));
 
-$($imageResetBtn).on('click', loadImage);
+$($resetBtn).on('click', loadImage);
 
 $($searchBtn).on('click', (event) => onSearch(event));
 

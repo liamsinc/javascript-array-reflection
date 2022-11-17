@@ -60,7 +60,6 @@
 @mixin wrapper-styles () {
 	display: flex;
 	flex-direction: column;
-	text-align: center;
 	padding: em(20px);
 }
 

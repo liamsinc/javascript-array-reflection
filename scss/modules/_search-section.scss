@@ -1,6 +1,7 @@
 #search {
     &__wrapper {
         @include wrapper-styles();
+        text-align: center;
     }
 
     &__title {
