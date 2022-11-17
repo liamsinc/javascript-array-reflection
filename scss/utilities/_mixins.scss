@@ -57,14 +57,14 @@
     }
 }
 
-@mixin input-wrapper-styles () {
+@mixin wrapper-styles () {
 	display: flex;
 	flex-direction: column;
 	text-align: center;
 	padding: em(20px);
 }
 
-@mixin input-title-styles ($color: $aqua) {
+@mixin title-styles ($color: $aqua) {
 	color: $color;
 	margin-bottom: em(20px);
 }

@@ -1,3 +1,28 @@
 #results {
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: em(20px);
+    }
+
+    &__title {
+        @include title-styles();
+    }
     
+
+
+}
+
+.results {
+    &__item {
+        border: 1px solid red;
+
+    }
+
+    &__image {
+        width: em(500px);
+        border: 1px solid $aqua;
+    }
 }

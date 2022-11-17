@@ -5,7 +5,7 @@ VARIABLES/CONSTANTS
 // Declare an empty array that will act as our datbase.
 var database = [];
 
-
+let resultCount = 0;
 
 /*
 Constant used to force reset the database (dev tool):
@@ -74,9 +74,9 @@ const $searchField = '#search__input';
 const $inputMsg = '.input__msg';
 const $resultsBox = '#results__box';
 const $resultsTitle = '#results__title';
-const $resultItem = '#results__item';
-const $resultEmail = '#results__email';
-const $resultImageBox = '.results__img__box';
+const $resultItem = '.results__item';
+const $resultEmail = '.results__email';
+const $resultImageBox = '.rib';
 
 // CSS Class reference:
 const $successClass = 'success-class';
@@ -127,7 +127,7 @@ Runs a series of checks, return either true or false to function onSubmit() depe
 on the validity of the email passed to it.
 */
 
-function checkEmail(email) {
+function checkEmailValidity(email) {
     $($inputMsg).removeClass($successClass);
     if (email === '') {
         $($inputMsg).text(emailNullError);
@@ -222,27 +222,7 @@ event = the event passed by the click handler.
     passing in the email and the url of the current image.
 */
 
-function onSubmit(event) {
-    event.preventDefault();
 
-    const email = DOMPurify.sanitize (
-        $($emailField).val().trim(), 
-        purifyConfig
-    );
-
-    const emailValid = checkEmail(email);
-
-    if (emailValid) {
-        let url = $($image).attr('src');
-        updateDatabase(email, url);
-        $($inputMsg)
-            .addClass($successClass)
-            .text("Successfully linked image to email!"
-        );
-
-        setTimeout(reloadPage, 2000);
-    }
-};
 
 function loadImage() {
 
@@ -256,57 +236,122 @@ function loadImage() {
     });
 };
 
-function searchDatabase(email) {
+function checkEmailExists(email) {
+    let emailExists;
+
     for (let i = 0; i < database.length; i++) {
         if (database[i].email === email) {
-            return true;
+            emailExists = true;
+            break;
         } else {
-            return false;
+            emailExists = false;
+        }
+    }
+
+    return emailExists;
+}
+
+function emptyResults() {
+    $($resultsBox).empty();
+}
+
+function setResultCount() {
+
+}
+
+function generateResult(email, images) {
+    const html = 
+    `<div class="results__item">
+        <h3 class="results__email">${email}</h3>
+        <div class="results__img__box rib${resultCount}">
+        </div>
+    </div>`;
+
+    console.log(resultCount);
+
+    $($resultsBox).append(html);
+    let resultToTarget = `${$resultImageBox}${resultCount}`;
+
+    for (let i = 0; i < images.length; i++) {
+        const img = `<img class="results__image" src="${images[i]}" alt="Image #${i + 1} from ${email}">`;
+        $(resultToTarget).append(img);
+    }
+}
+
+function setResultTitle(isAll, email = null,) {
+    if (isAll) {
+        $($resultsTitle).text(`Showing results for: All`);
+    } else {
+        $($resultsTitle).text(`Showing results for: ${email}`);
+    }
+}
+
+function retrieveSingle(email) {
+    emptyResults();
+    resultCount = 0;
+    for (let i = 0; i < database.length; i++) {
+        if (database[i].email === email) {
+            let retrievedEmail = database[i].email;
+            let retrievedImages = database[i].images;
+            resultCount++;
+            setResultTitle(false, retrievedEmail);
+            generateResult(retrievedEmail, retrievedImages);
+            break;
         }
     }
 }
 
-// function retrieveResults(email) {
-
-// }
-
-function generateResult(email, images) {
-    let html = 
-    `<div class="results__item">
-        <h3 id="results__email">${email}</h3>
-        <div class="results__img__box">
-        </div>
-    </div>`;
-
-    $($resultsBox).append(html);
-
-
-    for (let i = 0; i < images.length; i++) {
-        let img = `<img class="results__image" src="${images[i]}" alt="Image #${i + 1} from ${email}">`;
-        $($resultImageBox).append(img);
+function retrieveAll() {
+    emptyResults();
+    resultCount = 0;
+    for (let i = 0; i < database.length; i++) {
+        let retrievedEmail = database[i].email;
+        let retrievedImages = database[i].images;
+        resultCount++;
+        generateResult(retrievedEmail, retrievedImages);
     }
-
+    setResultTitle(true);
 }
 
+function grabPurifyInput($targetInput) {
+    return value = DOMPurify.sanitize (
+        $($targetInput).val().trim(), 
+        purifyConfig
+    );
+}
+
+function onSubmit(event) {
+    event.preventDefault();
+    const email = grabPurifyInput($emailField);
+    const emailValid = checkEmailValidity(email);
+
+    if (emailValid) {
+        let url = $($image).attr('src');
+        updateDatabase(email, url);
+        $($inputMsg)
+            .addClass($successClass)
+            .text("Successfully linked image to email!"
+        );
+
+        setTimeout(reloadPage, 2000);
+    }
+};
 
 
 function onSearch(event) {
     event.preventDefault();
-
-    const email = DOMPurify.sanitize (
-        $($searchField).val().trim(), 
-        purifyConfig
-    );
-
-    const emailValid = checkEmail(email);
+    const email = grabPurifyInput($searchField);
+    const emailValid = checkEmailValidity(email);
 
     if (emailValid) {
-        const emailExists = searchDatabase(email);
+        const emailExists = checkEmailExists(email);
         if (emailExists) {
-            retrieveDatabase(true, email);
+            retrieveSingle(email); 
         } else {
-            retrieveDatabase();
+            retrieveAll();
         }
+    } else {
+        retrieveAll();
     }
 };
 
@@ -323,7 +368,7 @@ applyActiveNavStyles(homeURLs, searchURLs);
 if (isHome) {
     loadImage(); 
 } else {
-    retrieveDatabase();
+    retrieveAll();
 }
 
 

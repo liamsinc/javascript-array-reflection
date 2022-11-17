@@ -1,10 +1,10 @@
 #email {
     &__wrapper {
-        @include input-wrapper-styles();
+        @include wrapper-styles();
     }
 
     &__title {
-        @include input-title-styles();
+        @include title-styles();
     }
 
     &__input {
