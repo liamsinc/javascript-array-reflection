@@ -179,7 +179,7 @@ function generateResult(email, images) {
     }
 };
 
-// INPUT VALIDATION FUNCTIONS
+// INPUT AND VALIDATION FUNCTIONS
 
 function grabPurifyInput($targetInput) {
     return value = DOMPurify.sanitize (
@@ -351,7 +351,3 @@ $($resetBtn).on('click', () => {
     loadImage();
     tempHideSubmit();
 });
-
-
-
-
