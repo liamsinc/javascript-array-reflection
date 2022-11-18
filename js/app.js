@@ -33,7 +33,7 @@ const searchURLs = ['search.html'];
 const $navLinks = ['#nav__home', '#nav__search'];
 
 // A boolean used to determine whether to make the fetch request:
-let isHome = false;
+let onHome = false;
 
 // jQuery ID selectors:
 const $image = '#image__img';
@@ -42,7 +42,7 @@ const $submitBtn = '#email__submit';
 const $resetBtn = '#image__reset';
 const $searchBtn = '#search__submit';
 const $resultsBox = '#results__box';
-const $resultsTitle = '#results__title';
+const $resultTitle = '#results__title';
 const $emailField = '#email__input';
 const $searchField = '#search__input';
 
@@ -71,7 +71,7 @@ const emailFormatMsg = "Please enter a valid email!";
 const submitSuccessMsg = "Your request was submitted successfully!";
 const emailNotFoundMsg = "Match not found!";
 const emailFoundMsg = "Match found!";
-const resultsPrefix = "Showing results for: ";
+const resPrefix = "Showing results for: ";
 
 // Constants holding pieces of HTML markup (search page):
 const resHTML1 = `<div class="results__item"><h3 class="results__email">`;
@@ -99,36 +99,42 @@ const purifyConfig = {
 // FUNCTIONS START
 //------------------------------------------------------------------------------------------------
 
-/* 
-Function: applyActiveNavStyles(hURLs, sURLs):
-Invoked: On page load.
-Parameters:
-    1.  hURLs = an array containing the URL endings of index.html
-    2.  sURLs = an array containing the URL endings of search.html
-Purpose:
-    1.  Determine the current page, and apply activeNavClass to the relevant nav element.
-    2.  Reassign global variable isHome dependant on current page.
-Features:
-    1.  If the current page is determined to be home, break out of the loop - no need
-        to continue inner loop.
-    2.  Helpful else clause if current page cannot be determined - print the current url
-        so I can add the ending to the relevant array.
-*/
+// GENERIC FUNCTIONS
 
-function applyActiveNavStyles(hURLs, sURLs) {
+function setNavStyles (isHome, className) {
+    if (isHome) {
+        $($navLinks[0]).addClass(className);
+        $($navLinks[1]).removeClass(className);
+    } else {
+        $($navLinks[1]).addClass(className);
+        $($navLinks[0]).removeClass(className);  
+    }
+};
+
+function setOnHome (isHome) {
+    (isHome) ? onHome = true : onHome = false;
+};
+
+function reloadPage() {
+    location.reload();
+};
+
+function tempHideSubmit() {
+    $($submitBtn).hide().delay(1500).slideDown();
+};
+
+function detectPage(hURLs, sURLs) {
     const currentURL = window.location.href;
     for (let i = 0; i < hURLs.length; i++) {
         if (currentURL.endsWith(hURLs[i])) {
-            $($navLinks[0]).addClass(activeNavClass);
-            $($navLinks[1]).removeClass(activeNavClass);
-            isHome = true;
+            setNavStyles(true, activeNavClass);
+            setOnHome(true);
             break;
         } else {
             for (let j = 0; j < sURLs.length; j++) {
                 if (currentURL.endsWith(sURLs[j])) {
-                    $($navLinks[1]).addClass(activeNavClass);
-                    $($navLinks[0]).removeClass(activeNavClass);
-                    isHome = false;
+                    setNavStyles(false, activeNavClass);
+                    setOnHome(false);
                 } else {
                     console.log(`${consoleErr}${currentURL}`);
                 }
@@ -137,48 +143,90 @@ function applyActiveNavStyles(hURLs, sURLs) {
     }
 };
 
-/* 
-Function: checkEmailValidity(email):
-Invoked: By functions onSubmit() and onSearch().
-Parameters:
-    1.  email = the email to validate.
-Purpose:
-    1.  Perform checks on the email. 
-    2.  Set the text of $inputMsg if email isn't valid.
-    2.  Return true if email is valid, false if not.
-Features:
-    1.  Removes the successMsgClass as a precautionary measure.
-*/
+function onRetrieve() {
+    $($resultsBox).empty();
+    resultCount = 0; 
+};
 
-function checkEmailValidity(email) {
-    $($inputMsg).removeClass(successMsgClass);
+function setResultTitle(isAll, email = null,) {
+    (isAll) ? title = `${resPrefix} All` : title = `${resPrefix} ${email}`;
+    $($resultTitle).text(title);
+};
+
+function setInputMsg(isSuccess, msg) {
+    if (isSuccess) {
+        $($inputMsg).addClass(successMsgClass).text(msg);
+    } else {
+        $($inputMsg).removeClass(successMsgClass).text(msg);
+    }
+}
+
+// HTML GENERATION FUNCTIONS
+
+function generateImage(image) {
+    const randomImage = `${imgHTML1}${image}${imgHTML2}`;
+    $($imageBox).html(randomImage);
+};
+
+function generateResult(email, images) {
+    const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
+    $($resultsBox).append(html);
+    const resultToTarget = `${$resultImageBox}${resultCount}`;
+
+    for (let i = 0; i < images.length; i++) {
+        const img = `${resHTML4}${images[i]}${resHTML5}${i+1}${resHTML6}${email}${resHTML7}`;
+        $(resultToTarget).append(img);
+    }
+};
+
+// INPUT VALIDATION FUNCTIONS
+
+function grabPurifyInput($targetInput) {
+    return value = DOMPurify.sanitize (
+        $($targetInput).val().trim(), 
+        purifyConfig
+    );
+};
+
+function getEmailValidity(email) {
     if (email === '') {
-        $($inputMsg).text(emailNullMsg);
+        setInputMsg(false, emailNullMsg);
         return false;
     } else if (!email.match(emailRegex)) {
-        $($inputMsg).text(emailFormatMsg)
+        setInputMsg(false, emailFormatMsg);
         return false;
     } else {
         return true;
     }
 };
 
-/* 
-Function: updateDatabase(email, url):
-Invoked: By function onSubmit().
-Parameters:
-    1.  email = the email to add or update.
-    2.  url = the url of the current random image.
-Purpose:
-    1.  Iterate through the database.
-    2.  If a match is found, push the url to the images array linked to the current email.
-    3.  If a match isn't found, set addObject to true.
-    4.  If addObject is true, push a new object containing the email and url to the database.
-    5.  Save the modified database to the session storage.
-Features:
-    1.  If the array has just been initialized with an empty object, the function will
-        populate that object with the email and url.
-*/
+// IMAGE FETCH FUNCTIONS
+
+function checkStatus(response) {
+    if (response.ok) {
+        return Promise.resolve(response);
+    } else {
+        return Promise.reject(new Error(response.statusText));
+    }
+};
+
+function fetchImage(url) {
+   return fetch(url)
+    .then(checkStatus)
+    .catch(error => console.log(error));
+};
+
+function loadImage() {
+    $($imageBox).html(loadingMsg);
+    Promise.all([
+        fetchImage(url)
+    ]).then(data => {
+        let randomImage = data[0].url;
+        generateImage(randomImage);
+    });
+};
+
+// DATABASE FUNCTIONS
 
 function updateDatabase(email, url) {
     let addObject = false;
@@ -197,87 +245,6 @@ function updateDatabase(email, url) {
     sessionStorage.setItem('database', JSON.stringify(database));
 };
 
-/* 
-Function: checkStatus(response):
-Invoked: By function fetchImage().
-Parameters:
-    1.  response = the response from the fetch attempt.
-Purpose:
-    1.  Resolve or reject the promise based on the response status.
-*/
-
-function checkStatus(response) {
-    if (response.ok) {
-        return Promise.resolve(response);
-    } else {
-        return Promise.reject(new Error(response.statusText));
-    }
-};
-
-/* 
-Function: fetchImage(url):
-Invoked: By function loadImage().
-Parameters:
-    1.  url = the url to fetch.
-Purpose:
-    1.  Invoke checkStatus(), catch any errors. Return the data.
-*/
-
-function fetchImage(url) {
-   return fetch(url)
-    .then(checkStatus)
-    .catch(error => console.log(error));
-};
-
-/* 
-Function: reloadPage():
-Invoked: By function onSubmit().
-Purpose: Reload the current page.
-*/
-
-function reloadPage() {
-    location.reload();
-};
-
-/*
-Function: tempHideSubmit():
-Invoked: On page load.
-Purpose: Temporarily hide the submit button while the image loads.
-*/
-
-function tempHideSubmit() {
-    $($submitBtn).hide().delay(1500).slideDown();
-}
-
-/* 
-Function: generateImage(image):
-Invoked: By function loadImage().
-Parameters:
-    1.  image = the image url to insert into the source attribute.
-Purpose: 
-    1.  Build the image tag using the url as the source attribute.
-    2.  Insert the image tag.
-*/
-
-function generateImage(image) {
-    const imageElement = `${imgHTML1}${image}${imgHTML2}`;
-    $($imageBox).html(imageElement);
-};
-
-// Description needed:
-
-function loadImage() {
-    $($imageBox).html(loadingMsg);
-    Promise.all([
-        fetchImage(url)
-    ]).then(data => {
-        let randomImage = data[0].url;
-        generateImage(randomImage);
-    });
-};
-
-// Description needed:
-
 function checkEmailExists(email) {
     let emailExists;
     for (let i = 0; i < database.length; i++) {
@@ -290,38 +257,6 @@ function checkEmailExists(email) {
     }
     return emailExists;
 };
-
-// Description needed:
-
-function generateResult(email, images) {
-    const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
-    $($resultsBox).append(html);
-    const resultToTarget = `${$resultImageBox}${resultCount}`;
-
-    for (let i = 0; i < images.length; i++) {
-        const img = `${resHTML4}${images[i]}${resHTML5}${i+1}${resHTML6}${email}${resHTML7}`;
-        $(resultToTarget).append(img);
-    }
-};
-
-// Description needed:
-
-function setResultTitle(isAll, email = null,) {
-    if (isAll) {
-        $($resultsTitle).text(`${resultsPrefix} All`);
-    } else {
-        $($resultsTitle).text(`${resultsPrefix} ${email}`);
-    }
-};
-
-// Description needed:
-
-function onRetrieve() {
-    $($resultsBox).empty();
-    resultCount = 0; 
-}
-
-// Description needed:
 
 function retrieveSingle(email) {
     onRetrieve();
@@ -337,8 +272,6 @@ function retrieveSingle(email) {
     }
 };
 
-// Description needed:
-
 function retrieveAll() {
     onRetrieve();
     for (let i = 0; i < database.length; i++) {
@@ -350,25 +283,16 @@ function retrieveAll() {
     setResultTitle(true);
 };
 
-// Description needed:
-
-function grabPurifyInput($targetInput) {
-    return value = DOMPurify.sanitize (
-        $($targetInput).val().trim(), 
-        purifyConfig
-    );
-};
-
-// Description needed:
+// SEARCH / SUBMIT
 
 function search(email, emailValid) {
     if (emailValid) {
         const emailExists = checkEmailExists(email);
         if (emailExists) {
-            $($inputMsg).addClass(successMsgClass).text(emailFoundMsg);
+            setInputMsg(true, emailFoundMsg);
             retrieveSingle(email);
         } else {
-            $($inputMsg).text(emailNotFoundMsg);
+            setInputMsg(false, emailNotFoundMsg);
             retrieveAll();
         }
     } else {
@@ -376,31 +300,20 @@ function search(email, emailValid) {
     }
 };
 
-// Description needed:
-
 function submit(email, emailValid) {
     if (emailValid) {
-        $($submitBtn).slideUp();
         const url = $($image).attr('src');
         updateDatabase(email, url);
-        $($inputMsg)
-            .addClass(successMsgClass)
-            .text(submitSuccessMsg
-        );
-        setTimeout(reloadPage, 2000);
+        setInputMsg(true, submitSuccessMsg);
+        $($submitBtn).slideUp();
+        setTimeout(reloadPage, 1500);
     }
 };
 
-// Description needed:
-
 function onSubmit(page, targetElement) {
     const input = grabPurifyInput(targetElement);
-    const emailValid = checkEmailValidity(input);
-    if (page === 'home') {
-        submit(input, emailValid);
-    } else if (page === 'search') {
-        search(input, emailValid);
-    }
+    const emailValid = getEmailValidity(input);
+    (onHome) ? submit(input, emailValid) : search(input, emailValid);
 };
 
 //------------------------------------------------------------------------------------------------
@@ -410,12 +323,12 @@ function onSubmit(page, targetElement) {
 // Hide the submit button for 1.5 seconds while image loads:
 tempHideSubmit();
 
-// Apply the active nav styles and set isHome:
-applyActiveNavStyles(homeURLs, searchURLs);
+// Apply the active nav styles and set onHome:
+detectPage(homeURLs, searchURLs);
 
 // If we are on the homepage, invoke loadImage().
 // Else we are on the search page, so invoke retrieveAll().
-if (isHome) {
+if (onHome) {
     loadImage(); 
 } else {
     retrieveAll();
@@ -434,7 +347,10 @@ $($searchBtn).on('click', (event) => {
 });
 
 // Handler for the reset button:
-$($resetBtn).on('click', loadImage);
+$($resetBtn).on('click', () => {
+    loadImage();
+    tempHideSubmit();
+});
 
 
 
