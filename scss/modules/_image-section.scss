@@ -10,7 +10,7 @@
         padding: em(20px);
         
 
-        border-bottom: em(1px) solid red;
+        border-bottom: em(2px) solid red;
 
         text-align: center;
 
@@ -83,7 +83,7 @@
     &__img {
         width: em(200px);
         border-radius: em(5px);
-        border: 1px solid aqua;
+        border: em(2px) solid aqua;
 
         @include media-query(small) {
             width: em(400px);

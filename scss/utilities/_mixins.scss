@@ -34,7 +34,7 @@
 
 @mixin button-styles ($color) {
 	outline: none;
-	border: 1px solid $color;
+	border: em(2px) solid $color;
 	border-radius: em(5px);
 	background-color: darken($color, 40%);
 
@@ -70,7 +70,7 @@
 
 @mixin input-field-styles ($color: $aqua) {
 	outline: none;
-	border: em(1px) solid $color;
+	border: em(2px) solid $color;
 	border-radius: em(5px);
 	padding: em(5px);
 	background-color: darken($color, 40%);

@@ -17,29 +17,38 @@
 .results {
     &__item {
         @include wrapper-styles();
-        border: 1px solid red;
+        border: em(2px) solid $aqua;
+        border-radius: em(5px);
+        margin-bottom: em(30px);
 
     }
 
     &__email {
         @include title-styles();
+        text-align: center;
+        padding-bottom: em(10px);
+        border-bottom: em(2px) solid red;
     }
 
     &__img__box {
-        border: 1px solid blue;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        row-gap: em(30px);
+        column-gap: em(30px);
+
+        
     }
 
     &__image {
-        width: em(200px);
+        width: em(180px);
         border-radius: em(5px);
-        border: 1px solid aqua;
+        border: em(2px) solid aqua;
 
-        @include media-query(small) {
-            width: em(400px);
-        }
-
-        @include media-query (medium) {
-            width: em(550px);
+        @include media-query(large) {
+            width: em(250px);
         }
     }
 }
