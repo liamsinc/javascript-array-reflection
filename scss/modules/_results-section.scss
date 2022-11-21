@@ -8,6 +8,7 @@
 
     &__title {
         @include title-styles();
+        text-align: center;
     }
     
 

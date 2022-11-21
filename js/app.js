@@ -8,6 +8,9 @@ let database = [];
 // A counter that stores the number of returned results.
 let resultCount = 0;
 
+// A boolean which indicates whether the database is empty.
+let isEmpty = false;
+
 // A boolean used to force reset the database (dev tool).
 // Ensure this is false before deployment/submission/demo:
 const resetDB = false;
@@ -209,7 +212,7 @@ If isAll is false, sets the text content using the email that was searched for.
 
 function setResultTitle(isAll, email = null,) {
     (isAll) ? title = `${resPrefix} All` : title = `${resPrefix} ${email}`;
-    $($resultTitle).text(title);
+    $($resultTitle).text(title);  
 };
 
 /* 
@@ -254,18 +257,26 @@ Parameters:
 2. images: an array of all images linked to the email address.
 Purpose: Constructs a result container for every email passed to it, while also displaying
 all images associated with that email. Utilises dynamic allocation of class names to avoid
-undesired behaviour when appending multiple images.
+undesired behaviour when appending multiple images. If the email passed is empty, then skip
+this function, set isEmpty to true and then set the text content of the result title element.
 */
 
 function generateResult(email, images) {
-    const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
-    $($resultsBox).append(html);
-    const resultToTarget = `${$resultImageBox}${resultCount}`;
+    if (email != '') {
+        isEmpty = false;
+        const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
+        $($resultsBox).append(html);
+        const resultToTarget = `${$resultImageBox}${resultCount}`;
 
-    for (let i = 0; i < images.length; i++) {
-        const img = `${resHTML4}${images[i]}${resHTML5}${i+1}${resHTML6}${email}${resHTML7}`;
-        $(resultToTarget).append(img);
+        for (let i = 0; i < images.length; i++) {
+            const img = `${resHTML4}${images[i]}${resHTML5}${i+1}${resHTML6}${email}${resHTML7}`;
+            $(resultToTarget).append(img);
+        }
+    } else {
+        isEmpty = true;
+        $($resultTitle).text("The database is empty!");
     }
+    
 };
 
 // INPUT AND VALIDATION FUNCTIONS
@@ -429,10 +440,10 @@ function retrieveSingle(email) {
     onRetrieve();
     for (let i = 0; i < database.length; i++) {
         if (database[i].email === email) {
-            let retrievedEmail = database[i].email;
-            let retrievedImages = database[i].images;
+            const retrievedEmail = database[i].email;
+            const retrievedImages = database[i].images;
             resultCount++;
-            setResultTitle(false, retrievedEmail);
+            setResultTitle(false, false, retrievedEmail);
             generateResult(retrievedEmail, retrievedImages);
             break;
         }
@@ -443,19 +454,23 @@ function retrieveSingle(email) {
 retrieveAll()
 Usage: Invoked by search().
 Purpose: For every object in the database array, get the email and associated images array and
-invoke generateResult, passing in the email and linked images array. Sets the result title. 
+invoke generateResult, passing in the email and linked images array. If global variable isEmpty
+is false, set the result title. 
 Returns the entire database.
 */
 
 function retrieveAll() {
     onRetrieve();
     for (let i = 0; i < database.length; i++) {
-        let retrievedEmail = database[i].email;
-        let retrievedImages = database[i].images;
+        const retrievedEmail = database[i].email;
+        const retrievedImages = database[i].images;
         resultCount++;
         generateResult(retrievedEmail, retrievedImages);
     }
-    setResultTitle(true);
+    if (!isEmpty) {
+        setResultTitle(true);
+    }
+    
 };
 
 // SEARCH / SUBMIT
