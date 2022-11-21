@@ -32,7 +32,7 @@ const searchURLs = ['search.html'];
 // An array that stores the IDs of the navigation links:
 const $navLinks = ['#nav__home', '#nav__search'];
 
-// A boolean used to determine whether to make the fetch request:
+// A boolean used to represent what page the user is on:
 let onHome = false;
 
 // jQuery ID selectors:
@@ -101,6 +101,16 @@ const purifyConfig = {
 
 // GENERIC FUNCTIONS
 
+/* 
+setNavStyles()
+Usage: Invoked by detectPage()
+Parameters:
+1. isHome: a boolean value (is the homepage the current page?)
+2. className: the name of the CSS class to apply/remove.
+Purpose: Applies and removes a CSS class from the nav elements to provide a visual
+indication of the page currently being viewed.
+*/
+
 function setNavStyles (isHome, className) {
     if (isHome) {
         $($navLinks[0]).addClass(className);
@@ -111,17 +121,49 @@ function setNavStyles (isHome, className) {
     }
 };
 
+/* 
+setOnHome()
+Usage: Invoked by detectPage()
+Parameters:
+1. isHome: a boolean value (is the homepage the current page?)
+Purpose: Reassign the global onHome boolean dependant on current page.
+*/
+
 function setOnHome (isHome) {
     (isHome) ? onHome = true : onHome = false;
 };
+
+/* 
+reloadPage()
+Usage: Invoked by submit()
+Purpose: Reloads the current page. Wrapped in a function to support usage with 
+setTimeout().
+*/
 
 function reloadPage() {
     location.reload();
 };
 
+/* 
+tempHideSubmit()
+Usage: Invoked by onPageLoad() and the reset button click handler.
+Purpose: Hides the submit button, waits 1.5 seconds, then slides it down into view.
+Reduces cases where null image URL values are passed to the database if user spams submit.
+*/
+
 function tempHideSubmit() {
     $($submitBtn).hide().delay(1500).slideDown();
 };
+
+/* 
+detectPage()
+Usage: Invoked by onPageLoad()
+Parameters:
+1. hURLs: an array containing the list of possible URL endings of the home page.
+2. sURLs: an array containing the list of possible URL endings of the search page.
+Purpose: Determines the currently viewed page based on the URL ending. Invokes setNavStyles
+and setOnHome once page has been determined.
+*/
 
 function detectPage(hURLs, sURLs) {
     const currentURL = window.location.href;
@@ -143,15 +185,42 @@ function detectPage(hURLs, sURLs) {
     }
 };
 
+/* 
+onRetrieve()
+Usage: Invoked by retrieveSingle() and retrieveAll().
+Purpose: Empties the HTML element where results are inserted and sets the global
+resultCount variable to 0;
+*/
+
 function onRetrieve() {
     $($resultsBox).empty();
     resultCount = 0; 
 };
 
+/* 
+setResultTitle()
+Usage: Invoked by retrieveSingle() and retrieveAll().
+Parameters:
+1. isAll: a boolean value (are we returning all the objects in the database?)
+2. email: an optional parameter that specifies the email searched for.
+Purpose: If isAll is true, sets the text content of the result title HTML element.
+If isAll is false, sets the text content using the email that was searched for.
+*/
+
 function setResultTitle(isAll, email = null,) {
     (isAll) ? title = `${resPrefix} All` : title = `${resPrefix} ${email}`;
     $($resultTitle).text(title);
 };
+
+/* 
+setInputMsg()
+Usage: Invoked by submit(), search() and getEmailValidity().
+Parameters:
+1. isSuccess: a boolean value (is the message we are setting a success message?).
+2. msg: the message to set as the text content.
+Purpose: Used by a few functions to set the text content on the input field message whether 
+it be an error or success message.
+*/
 
 function setInputMsg(isSuccess, msg) {
     if (isSuccess) {
@@ -163,10 +232,30 @@ function setInputMsg(isSuccess, msg) {
 
 // HTML GENERATION FUNCTIONS
 
+/* 
+generateImage()
+Usage: Invoked by loadImage().
+Parameters:
+1. image: the url of the random image to insert into the HTML.
+Purpose: Builds the image tag using pre-built strings, using the supplied image url.
+Inserts the built image tag into the HTML.
+*/
+
 function generateImage(image) {
     const randomImage = `${imgHTML1}${image}${imgHTML2}`;
     $($imageBox).html(randomImage);
 };
+
+/* 
+generateResult()
+Usage: Invoked by retrieveSingle() and retrieveAll().
+Parameters:
+1. email: the associated email address the results are linked to.
+2. images: an array of all images linked to the email address.
+Purpose: Constructs a result container for every email passed to it, while also displaying
+all images associated with that email. Utilises dynamic allocation of class names to avoid
+undesired behaviour when appending multiple images.
+*/
 
 function generateResult(email, images) {
     const html = `${resHTML1}${email}${resHTML2}${resultCount}${resHTML3}`;
@@ -181,12 +270,31 @@ function generateResult(email, images) {
 
 // INPUT AND VALIDATION FUNCTIONS
 
+/* 
+grabPurifyInput()
+Usage: Invoked by onSubmit().
+Parameters:
+1. $targetInput: the jQuery selector of the input field to grab.
+Purpose: Trims the value of the target input, sanitizes it using DOMPurify and then
+returns the value to the caller.
+*/
+
 function grabPurifyInput($targetInput) {
     return value = DOMPurify.sanitize (
         $($targetInput).val().trim(), 
         purifyConfig
     );
 };
+
+/* 
+getEmailValidity()
+Usage: Invoked by onSubmit().
+Parameters:
+1. email: the email to validate.
+Purpose: Checks the email is not null and conforms the format standard using regex.
+If invalid, display an error message (invoke setInputMsg) and return false to the caller.
+If valid, return true.
+*/
 
 function getEmailValidity(email) {
     if (email === '') {
@@ -202,6 +310,15 @@ function getEmailValidity(email) {
 
 // IMAGE FETCH FUNCTIONS
 
+/* 
+checkStatus()
+Usage: Invoked by fetchImage().
+Parameters:
+1. response: the response from the fetch call.
+Purpose: Resolves or rejects the promise dependant on the response
+Returns the error if rejected.
+*/
+
 function checkStatus(response) {
     if (response.ok) {
         return Promise.resolve(response);
@@ -210,11 +327,27 @@ function checkStatus(response) {
     }
 };
 
+/* 
+fetchImage()
+Usage: Invoked by loadImage().
+Parameters:
+1. url: the url to fetch the random image from.
+Purpose: Returns the result of the fetch call to the invoking function. Invokes checkStatus
+and logs any errors.
+*/
+
 function fetchImage(url) {
    return fetch(url)
     .then(checkStatus)
     .catch(error => console.log(error));
 };
+
+/* 
+loadImage()
+Usage: Invoked by onPageLoad().
+Purpose: Displays the loading placeholder text while an image loads, then invokes fetchImage.
+Derives the image url from the object returned (data) and passes this to the generateImage function.
+*/
 
 function loadImage() {
     $($imageBox).html(loadingMsg);
@@ -227,6 +360,21 @@ function loadImage() {
 };
 
 // DATABASE FUNCTIONS
+
+/* 
+updateDatabase()
+Usage: Invoked by submit().
+Parameters:
+1. email: the email to add/update.
+2. url: the url of the image to attach to the email.
+Purpose: When called, it will iterate through the database checking for an email match or an empty object.
+The second condition accounts for the existence of a freshly initialized database with a single empty object.
+If either of the above conditions are met, overwrite the email stored (if one exists) or store the email 
+(if database has empty object) and push the image url to the associated images array.
+If a match is not found and there is no empty object in the array, set addObject to true and push a new object
+to the database using the email and image url provided. Finally, save the stringified database array to the session
+storage.
+*/
 
 function updateDatabase(email, url) {
     let addObject = false;
@@ -245,6 +393,14 @@ function updateDatabase(email, url) {
     sessionStorage.setItem('database', JSON.stringify(database));
 };
 
+/* 
+checkEmailExists()
+Usage: Invoked by search().
+Parameters:
+1. email: the email to check the existence of.
+Purpose: Checks if an email exists in the database. Returns a boolean value to the caller.
+*/
+
 function checkEmailExists(email) {
     let emailExists;
     for (let i = 0; i < database.length; i++) {
@@ -257,6 +413,17 @@ function checkEmailExists(email) {
     }
     return emailExists;
 };
+
+/* 
+retrieveSingle()
+Usage: Invoked by search().
+Parameters:
+1. email: the email we need to retrieve the results for.
+Purpose: Invoke onRetrieve to clear any existing results from view and reset the resultCount
+variable. Based on the email provided, get the relevant email and images array, increment the result
+count, set the result title using the retrieved email and generate the result, passing in the email value
+and associated images array. Returns a single object from the database.
+*/
 
 function retrieveSingle(email) {
     onRetrieve();
@@ -272,6 +439,14 @@ function retrieveSingle(email) {
     }
 };
 
+/* 
+retrieveAll()
+Usage: Invoked by search().
+Purpose: For every object in the database array, get the email and associated images array and
+invoke generateResult, passing in the email and linked images array. Sets the result title. 
+Returns the entire database.
+*/
+
 function retrieveAll() {
     onRetrieve();
     for (let i = 0; i < database.length; i++) {
@@ -284,6 +459,17 @@ function retrieveAll() {
 };
 
 // SEARCH / SUBMIT
+
+/* 
+search()
+Usage: Invoked by onSubmit().
+Parameters:
+1. email: the email address to search for.
+2. emailValid: a boolean indicating whether the email is valid.
+Purpose: If the email is valid, invoke checkEmailExists() and set the local const emailExists.
+If the email exists, set the input message and invoke retrieveSingle(). If the email does not exist,
+set the input message and invoke retrieveAll(). If the email is not valid, just return the entire database.
+*/
 
 function search(email, emailValid) {
     if (emailValid) {
@@ -300,6 +486,18 @@ function search(email, emailValid) {
     }
 };
 
+/* 
+submit()
+Usage: Invoked by onSubmit().
+Parameters:
+1. email: the email address to submit.
+2. emailValid: a boolean indicating whether the email is valid.
+Purpose: If the email is valid, grab the src attribute of the current random image.
+Then invoke updateDatabase(), passing the email and image url to it. Set the input message,
+slide up the submit button to avoid submission of null url values while new image is loading.
+Reload the page after 1.5 seconds (gives user chance to read submission success message).
+*/
+
 function submit(email, emailValid) {
     if (emailValid) {
         const url = $($image).attr('src');
@@ -310,44 +508,63 @@ function submit(email, emailValid) {
     }
 };
 
-function onSubmit(page, targetElement) {
+/*
+onSubmit()
+Usage: Invoked by the submit button and the search button click handlers.
+Parameters:
+1. targetElement: the target input field to grab the value of.
+Purpose: Set the local const input equal to the return value of grabPurifyInput().
+Set the local const emailValid equal to the return value of getEmailValidity().
+Invoke submit() or search() dependant on the value of onHome, passing in the input and
+the emailValid boolean.
+*/
+
+function onSubmit(targetElement) {
     const input = grabPurifyInput(targetElement);
     const emailValid = getEmailValidity(input);
     (onHome) ? submit(input, emailValid) : search(input, emailValid);
 };
 
+/*
+onPageLoad()
+Usage: Invoked immediately.
+Purpose: Invoke detectPage(), which will determine the active page, then invoke setNavStyles()
+and setOnHome(). Then, depending on the current page, invoke other functions. If we are on the
+homepage, we want to hide the submit button and load the random image. If we are on the search
+page, return the entire database by default.
+*/
+
+function onPageLoad() {
+    detectPage(homeURLs, searchURLs);
+    if (onHome) {
+        tempHideSubmit();
+        loadImage(); 
+    } else {
+        retrieveAll();
+    }
+}
+
 //------------------------------------------------------------------------------------------------
 // GENERAL CODE
 //------------------------------------------------------------------------------------------------
 
-// Hide the submit button for 1.5 seconds while image loads:
-tempHideSubmit();
+// Invoke onPageLoad wrapper function
+onPageLoad();
 
-// Apply the active nav styles and set onHome:
-detectPage(homeURLs, searchURLs);
-
-// If we are on the homepage, invoke loadImage().
-// Else we are on the search page, so invoke retrieveAll().
-if (onHome) {
-    loadImage(); 
-} else {
-    retrieveAll();
-}
-
-// Handler for the submit button:
+// Handler for the submit button (home page):
 $($submitBtn).on('click', (event) => {
     event.preventDefault();
-    onSubmit('home', $emailField);
+    onSubmit($emailField);
 });
 
-// Handler for the search button:
-$($searchBtn).on('click', (event) => {
-    event.preventDefault()
-    onSubmit('search', $searchField);
-});
-
-// Handler for the reset button:
+// Handler for the reset button (home page):
 $($resetBtn).on('click', () => {
     loadImage();
     tempHideSubmit();
+});
+
+// Handler for the search button (search page):
+$($searchBtn).on('click', (event) => {
+    event.preventDefault()
+    onSubmit($searchField);
 });
