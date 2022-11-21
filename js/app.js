@@ -26,7 +26,7 @@ if (resetDB) {
 }
 
 // Arrays that stores the possible URL endings of each page:
-const homeURLs = ['index.html', ':5500/', 'array-reflection'];
+const homeURLs = ['index.html', ':5500/', 'array-reflection/'];
 const searchURLs = ['search.html'];
 
 // An array that stores the IDs of the navigation links:
