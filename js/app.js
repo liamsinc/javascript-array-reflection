@@ -443,7 +443,7 @@ function retrieveSingle(email) {
             const retrievedEmail = database[i].email;
             const retrievedImages = database[i].images;
             resultCount++;
-            setResultTitle(false, false, retrievedEmail);
+            setResultTitle(false, retrievedEmail);
             generateResult(retrievedEmail, retrievedImages);
             break;
         }
