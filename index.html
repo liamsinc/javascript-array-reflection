@@ -27,31 +27,30 @@
 
         <section id="image__section">
             <div id="image__wrapper">
-                <div id="image__text-wrapper">
-                    <h2 id="image__title">Here's your random image!</h2>
-                    <p class="image__text">
-                        Link one or more images to an email address using
-                        the form below.
-                    </p>
-                    <p class="image__text">
-                        Find images associated with an email address on
-                        the <a href="search.html" title="Search images by email!">search</a> page.
-                    </p>
-                    <button type="button" id="image__reset">Refresh Image</button>
+                <div id="image__email__wrapper">
+                    <div id="image__text-wrapper">
+                        <h2 id="image__title">Here's your random image!</h2>
+                        <p class="image__text">
+                            Link one or more images to an email address using
+                            the form below.
+                        </p>
+                        <p class="image__text">
+                            Find images associated with an email address on
+                            the <a href="search.html" title="Search images by email!">search</a> page.
+                        </p>
+                        <button type="button" id="image__reset">Refresh Image</button>
+                    </div>
+                    <div id="email__wrapper">
+                        <h2 id="email__title">Link the image to an email below!</h2>
+                        <label for="email__input" id="email__label">Email:</label>
+                        <input type="text" id="email__input" placeholder="Enter your email here...">
+                        <p class="input__msg"></p>
+                        <button type="submit" id="email__submit">Submit</button>
+                    </div>
                 </div>
                 <div id="image__container">
                     <h2 id="image__loading">Loading random image...</h2>
                 </div>
-            </div>
-        </section>
-
-        <section id="email__section">
-            <div id="email__wrapper">
-                <h2 id="email__title">Link the image to your email below!</h2>
-                <label for="email__input" id="email__label">Email:</label>
-                <input type="text" id="email__input" placeholder="Enter your email here...">
-                <p class="input__msg"></p>
-                <button type="submit" id="email__submit">Submit</button>
             </div>
         </section>
     </div>

@@ -1,7 +1,7 @@
 #image {
     &__wrapper {
         display: flex;
-        flex-direction: column;
+        flex-direction: column-reverse;
         justify-content: center;
         align-items: center;
 
@@ -14,7 +14,7 @@
 
         text-align: center;
 
-        @include media-query (medium) {
+        @include media-query (large) {
             flex-direction: row-reverse;
             justify-content: space-evenly;
             align-items: center;
@@ -31,18 +31,23 @@
         min-height: em(200px);
 
         @include media-query (small) {
+            min-width: em(275px);
+            min-height: em(275px);
+        }
+
+        @include media-query (medium) {
             min-width: em(400px);
             min-height: em(400px);
         }
 
-        @include media-query (medium) {
-            min-width: em(550px);
-            min-height: em(550px);
+        @include media-query (large) {
+            min-width: em(500px);
+            min-height: em(500px);
         }
 
-        @include media-query (large) {
-            min-width: em(700px);
-            min-height: em(700px);
+        @include media-query (x-large) {
+            min-width: em(600px);
+            min-height: em(600px);
         }
     }
 
@@ -70,14 +75,6 @@
         @include button-styles($successGreen);
         margin-top: em(20px);
         height: em(35px);
-
-        @include media-query (medium) {
-            height: em(60px);
-        }
-
-        @include media-query (large) {
-            height: em(35px);
-        }
     }
 
     &__img {
@@ -86,21 +83,25 @@
         border: em(2px) solid aqua;
 
         @include media-query(small) {
-            width: em(400px);
+            width: em(275px);
         }
 
         @include media-query (medium) {
-            width: em(550px);
+            width: em(400px);
         }
 
         @include media-query (large) {
-            width: em(700px);
+            width: em(500px);
         }
+        
+        @include media-query (x-large) {
+            width: em(600px);
+        }
+        
     }
 }
 
 .image__text {
-
     margin-top: em(20px);
 
     & > a {

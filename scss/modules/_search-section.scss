@@ -1,7 +1,8 @@
 #search {
     &__wrapper {
+        display: flex;
+        align-items: center;
         @include wrapper-styles();
-        text-align: center;
     }
 
     &__title {

@@ -1,11 +1,11 @@
 #email {
-    &__section {
-        min-height: em(250px);
-    }
-
     &__wrapper {
+        display: flex;
+        align-items: center;
+        margin-top: em(30px);
+        border-top: 3px solid red;
         @include wrapper-styles();
-        text-align: center;
+        padding: em(20px) 0 0 0;
     }
 
     &__title {
@@ -32,4 +32,11 @@
 
 .success-class {
     color: $successGreen;
+}
+
+// New styles for repositioned email section:
+
+#image__email__wrapper {
+    display: flex;
+    flex-direction: column;
 }

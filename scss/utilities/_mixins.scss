@@ -41,6 +41,8 @@
 	padding-right: em(10px);
     padding-left: em(10px);
 
+	width: 100%;
+
 	&:hover {
 		background-color: $color;
 		box-shadow: 0 0 8px $color;
@@ -75,10 +77,15 @@
 	padding: em(5px);
 	background-color: darken($color, 40%);
 	text-align: center;
+	width: 210px;
 
 	&:focus {
 		background-color: darken($color, 10%);
 		box-shadow: 0 0 8px $color;
+	}
+
+	@include media-query (x-small) {
+		width: 100%;
 	}
 
 	@include media-query (small) {
@@ -89,8 +96,4 @@
 @mixin input-label-styles () {
 	font-size: em(25px);
 	margin-bottom: em(5px);
-
-	@include media-query (small) {
-		text-align: left;
-	}
 }
